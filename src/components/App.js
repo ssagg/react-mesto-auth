@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from "react";
+import {
+  Route,
+  Routes,
+  Navigate,
+  useNavigate,
+  redirect,
+} from "react-router-dom";
+import * as Auth from "./Auth.js";
+
 import Header from "./Header";
 import Footer from "./Footer";
 import Main from "./Main";
+import Login from "./Login";
+import ProtectedRoute from "./ProtectedRoute";
+import Registration from "./Registration";
+
 import ImagePopup from "./ImagePopup";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
@@ -17,6 +30,9 @@ function App() {
   const [buttonText, setButtonText] = useState("");
   const [currentUser, setCurrentUser] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userData, setUserData] = useState({});
+  const [isRegSuccess, setIsRegSuccess] = useState(false);
 
   const [cards, setCards] = useState([]);
 
@@ -26,6 +42,30 @@ function App() {
     isAddPlacePopupOpen ||
     selectedCard.isOpen;
 
+  const navigate = useNavigate();
+
+  function handleLogin() {
+    setLoggedIn(true);
+  }
+  useEffect(() => {
+    tokenCheck();
+  }, []);
+
+  function tokenCheck() {
+    if (localStorage.getItem("token")) {
+      const token = localStorage.getItem("token");
+      if (token) {
+        Auth.userValidation(token).then((res) => {
+          if (res) {
+            console.log(res);
+            setUserData(res);
+            setLoggedIn(true);
+            // navigate("/cards", { replace: true });
+          }
+        });
+      }
+    }
+  }
   useEffect(() => {
     function closeByEscape(evt) {
       if (evt.key === "Escape") {
@@ -178,16 +218,42 @@ function App() {
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
-        <Header />
-        <Main
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          cards={cards}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-        />
+        <Header loggedIn={loggedIn} userData={userData} />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              loggedIn ? (
+                <Navigate to="/cards" replace />
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
+            }
+          />
+          <Route element={<ProtectedRoute loggedIn={loggedIn} />}>
+            <Route
+              path="/cards"
+              element={
+                <Main
+                  onEditProfile={handleEditProfileClick}
+                  onAddPlace={handleAddPlaceClick}
+                  onEditAvatar={handleEditAvatarClick}
+                  onCardClick={handleCardClick}
+                  cards={cards}
+                  onCardLike={handleCardLike}
+                  onCardDelete={handleCardDelete}
+                />
+              }
+            />
+          </Route>
+
+          <Route
+            path="/sign-in"
+            element={<Login handleLogin={handleLogin} />}
+          />
+          <Route path="/sign-up" element={<Registration />} />
+        </Routes>
+
         <ImagePopup card={selectedCard} onClose={closeAllPopups} />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -210,6 +276,7 @@ function App() {
           onUpdateAvatar={handleUpdateAvatar}
           isLoading={isLoading}
         />
+
         <Footer />
       </CurrentUserContext.Provider>
     </div>
