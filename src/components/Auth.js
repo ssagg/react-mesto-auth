@@ -1,5 +1,9 @@
 export const BASE_URL = "https://auth.nomoreparties.co";
 
+const getResponse = (res) => {
+  return res.ok ? res.json() : Promise.reject(`Ошибка ${res.status}`);
+};
+
 export const signup = (password, email) => {
   return fetch(`${BASE_URL}/signup`, {
     method: "POST",
@@ -7,19 +11,18 @@ export const signup = (password, email) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(password, email),
-  })
-    .then((resp) => {
-      console.log(resp);
-      return resp.json();
-    })
-    .then((data) => {
-      console.log(data);
-      // сохраняем токен
-      // localStorage.setItem("token", data.token);
-      return data;
-    })
+  }).then(
+    getResponse
+    //   (resp) => {
+    //   console.log(resp);
+    //   return resp.json();
+    // }
+  );
+  // .then((data) => {
+  //   console.log(data);
 
-    .catch((err) => console.log(err));
+  //   return data;
+  // });
 };
 
 export const signin = (password, email) => {
@@ -37,9 +40,7 @@ export const signin = (password, email) => {
       // сохраняем токен
       localStorage.setItem("token", data.token);
       return data;
-    })
-
-    .catch((err) => console.log(err));
+    });
 };
 
 export const userValidation = (token) => {
@@ -50,13 +51,13 @@ export const userValidation = (token) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  })
-    .then((resp) => {
-      return resp.json();
-    })
-    .then((data) => {
-      return data;
-    })
-
-    .catch((err) => console.log(err));
+  }).then(
+    getResponse
+    //   (resp) => {
+    //   return resp.json();
+    // }
+  );
+  // .then((data) => {
+  //   return data;
+  // });
 };

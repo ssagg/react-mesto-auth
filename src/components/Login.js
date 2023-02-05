@@ -1,9 +1,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as Auth from "./Auth.js";
 
-function Login({ handleLogin }) {
+function Login({ handleLogin, loadUserEmail }) {
   const {
     register,
     formState: { errors, isValid },
@@ -12,16 +12,26 @@ function Login({ handleLogin }) {
   } = useForm({
     mode: "onChange",
   });
+
   const navigate = useNavigate();
+  function handelEmail(res) {
+    loadUserEmail(res);
+  }
 
   function onSubmit(password, email) {
     Auth.signin(password, email)
       .then((data) => {
-        console.log(data);
         if (data.token) {
           reset();
-          handleLogin();
-          navigate("/cards");
+
+          Auth.userValidation(data.token)
+            .then((res) => {
+              console.log(res);
+              handleLogin();
+              handelEmail(res);
+              navigate("/cards");
+            })
+            .catch((err) => console.log(err));
         }
       })
       .catch((err) => console.log(err));
@@ -66,10 +76,10 @@ function Login({ handleLogin }) {
           id="profile-about"
           {...register("password", {
             required: "Заполните поле",
-            minLength: { value: 2, message: "Минимум 2 символа максимум 40" },
+            minLength: { value: 2, message: "Минимум 2 символа максимум 8" },
             maxLength: {
-              value: 200,
-              message: "Минимум 2 символа максимум 40",
+              value: 8,
+              message: "Минимум 2 символа максимум 48",
             },
           })}
         />

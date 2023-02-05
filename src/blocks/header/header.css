@@ -4,6 +4,7 @@
   margin: 0 auto 40px;
   justify-content: space-between;
   flex-direction: row;
+  align-items: center;
   border-bottom: 1px solid rgba(84, 84, 84, 0.7);
   padding-top: 45px;
 }

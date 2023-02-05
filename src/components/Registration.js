@@ -1,10 +1,11 @@
-import React from "react";
-import { useNavigate, Link, redirect } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 import { useForm } from "react-hook-form";
 import * as Auth from "./Auth.js";
 
-function Registration() {
+function Registration({ handleRegistration }) {
+  const [userData, setUserData] = useState();
   const {
     register,
     formState: { errors, isValid },
@@ -14,21 +15,25 @@ function Registration() {
     mode: "onChange",
   });
   const navigate = useNavigate();
+  const [isRegSuccess, setIsRegSuccess] = useState(false);
+
+  function openInfoTooltip(isRegSuccess) {
+    handleRegistration(isRegSuccess);
+  }
 
   function onSubmit(password, email) {
     Auth.signup(password, email)
-      .then(
-        (res) => {
+      .then((res) => {
+        if (res.data) {
+          openInfoTooltip(res);
           navigate("/sign-in");
+        } else {
+          openInfoTooltip(res.error);
         }
-        //   setRegSuccess(true)
-        // openInfoTooltip()
-      )
-      .catch(
-        (err) => console.log(err)
-        //   setRegSuccess()
-        // openInfoTooltip()
-      );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   return (
@@ -93,10 +98,12 @@ function Registration() {
           Зарегистрироваться
         </button>
         <div className="login__signup">
-          <p>Ещё не зарегистрированы?</p>
-          <Link to="/sign-in" className="signup__link">
-            Войти
-          </Link>
+          <p>
+            Уже зарегистрированы?
+            <Link to="/sign-in" className="login__signup">
+              Войти
+            </Link>
+          </p>
         </div>
       </form>
       {/* </div> */}
