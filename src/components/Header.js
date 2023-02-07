@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import logo from "../images/logo/logo.svg";
-import NavBar from "./ NavBar";
+import NavBar from "./NavBar";
 import { Link, useLocation } from "react-router-dom";
 import { LoginDataContext } from "../contexts/LoginDataContext.js";
 
