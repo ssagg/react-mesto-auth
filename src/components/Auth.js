@@ -11,18 +11,7 @@ export const signup = (password, email) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(password, email),
-  }).then(
-    getResponse
-    //   (resp) => {
-    //   console.log(resp);
-    //   return resp.json();
-    // }
-  );
-  // .then((data) => {
-  //   console.log(data);
-
-  //   return data;
-  // });
+  }).then(getResponse);
 };
 
 export const signin = (password, email) => {
@@ -30,17 +19,7 @@ export const signin = (password, email) => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(password, email),
-  })
-    .then((resp) => {
-      console.log(resp);
-      return resp.json();
-    })
-    .then((data) => {
-      console.log(data);
-      // сохраняем токен
-      localStorage.setItem("token", data.token);
-      return data;
-    });
+  }).then(getResponse);
 };
 
 export const userValidation = (token) => {
@@ -51,13 +30,5 @@ export const userValidation = (token) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  }).then(
-    getResponse
-    //   (resp) => {
-    //   return resp.json();
-    // }
-  );
-  // .then((data) => {
-  //   return data;
-  // });
+  }).then(getResponse);
 };

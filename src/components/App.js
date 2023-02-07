@@ -16,7 +16,6 @@ import AddPlacePopup from "./AddPlacePopup";
 import InfoTooltip from "./InfoTooltip";
 import { api } from "../utils/Api.js";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
-import { UserDataContext } from "../contexts/UserDataContext.js";
 import { LoginDataContext } from "../contexts/LoginDataContext.js";
 
 function App() {
@@ -44,26 +43,48 @@ function App() {
 
   const navigate = useNavigate();
 
-  function handleLogin() {
-    setLoggedIn(true);
+  function handleLogin(password, email) {
+    Auth.signin(password, email).then((res) => {
+      localStorage.setItem("token", res.token);
+      if (res.token) {
+        Auth.userValidation(res.token)
+          .then((res) => {
+            setLoggedIn(true);
+            loadUserEmail(res);
+            navigate("/", { replace: true });
+          })
+          .catch((err) => console.log(err));
+      }
+    });
   }
+
   function handleLogout() {
     setLoggedIn(false);
   }
-  function loadUserEmail(res) {
-    setUserEmail(res);
+  function loadUserEmail(email) {
+    setUserEmail(email);
+  }
+  function handleRegistration(password, email) {
+    Auth.signup(password, email)
+      .then((res) => {
+        setIsRegPopupOpen(!isRegPopupOpen);
+        setIsRegSuccess(true);
+        navigate("/sign-in", { replace: true });
+      })
+      .catch((err) => {
+        setIsRegPopupOpen(!isRegPopupOpen);
+        setIsRegSuccess(false);
+        console.log(err);
+      });
   }
 
   function tokenCheck() {
     const token = localStorage.getItem("token");
     if (token) {
       Auth.userValidation(token).then((res) => {
-        if (res) {
-          console.log(res);
-          setLoggedIn(true);
-          loadUserEmail(res);
-          navigate("/cards", { replace: true });
-        }
+        setLoggedIn(true);
+        loadUserEmail(res);
+        navigate("/", { replace: true });
       });
     }
   }
@@ -128,16 +149,7 @@ function App() {
       name: card.name,
     });
   }
-  function handleRegistration(data) {
-    setIsRegPopupOpen(!isRegPopupOpen);
-    console.log(data);
-    if (data.data) {
-      setIsRegSuccess(true);
-    } else {
-      setIsRegSuccess(false);
-    }
-    // setIsRegSuccess(true);
-  }
+
   function handleCardDelete(card) {
     api
       .deleteCard(card._id)
@@ -236,90 +248,76 @@ function App() {
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
-        <UserDataContext.Provider value={userEmail}>
-          <LoginDataContext.Provider value={loggedIn}>
-            <Header
-              loggedIn={loggedIn}
-              userEmail={userEmail}
-              handleLogout={handleLogout}
+        <LoginDataContext.Provider value={loggedIn}>
+          <Header userEmail={userEmail} handleLogout={handleLogout} />
+          <Routes>
+            <Route
+              path="*"
+              element={
+                loggedIn ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <Navigate to="/sign-in" replace />
+                )
+              }
             />
-            <Routes>
+            <Route element={<ProtectedRoute loggedIn={loggedIn} />}>
               <Route
                 path="/"
                 element={
-                  loggedIn ? (
-                    <Navigate to="/cards" replace />
-                  ) : (
-                    <Navigate to="/sign-in" replace />
-                  )
-                }
-              />
-              <Route element={<ProtectedRoute loggedIn={loggedIn} />}>
-                <Route
-                  path="/cards"
-                  element={
-                    <Main
-                      onEditProfile={handleEditProfileClick}
-                      onAddPlace={handleAddPlaceClick}
-                      onEditAvatar={handleEditAvatarClick}
-                      onCardClick={handleCardClick}
-                      cards={cards}
-                      onCardLike={handleCardLike}
-                      onCardDelete={handleCardDelete}
-                    />
-                  }
-                />
-              </Route>
-
-              <Route
-                path="/sign-in"
-                element={
-                  <Login
-                    handleLogin={handleLogin}
-                    setUserEmail={setUserEmail}
-                    loadUserEmail={loadUserEmail}
+                  <Main
+                    onEditProfile={handleEditProfileClick}
+                    onAddPlace={handleAddPlaceClick}
+                    onEditAvatar={handleEditAvatarClick}
+                    onCardClick={handleCardClick}
+                    cards={cards}
+                    onCardLike={handleCardLike}
+                    onCardDelete={handleCardDelete}
                   />
                 }
               />
-              <Route
-                path="/sign-up"
-                element={
-                  <Registration handleRegistration={handleRegistration} />
-                }
-              />
-            </Routes>
+            </Route>
 
-            <ImagePopup card={selectedCard} onClose={closeAllPopups} />
-            <EditProfilePopup
-              isOpen={isEditProfilePopupOpen}
-              onClose={closeAllPopups}
-              buttonText={buttonText}
-              onUpdateUser={handleUpdateUser}
-              isLoading={isLoading}
+            <Route
+              path="/sign-in"
+              element={<Login handleLogin={handleLogin} />}
             />
-            <AddPlacePopup
-              isOpen={isAddPlacePopupOpen}
-              onClose={closeAllPopups}
-              buttonText={buttonText}
-              onAddPlace={handleAddPlaceSubmit}
-              isLoading={isLoading}
+            <Route
+              path="/sign-up"
+              element={<Registration handleRegistration={handleRegistration} />}
             />
-            <EditAvatarPopup
-              isOpen={isEditAvatarPopupOpen}
-              onClose={closeAllPopups}
-              buttonText={buttonText}
-              onUpdateAvatar={handleUpdateAvatar}
-              isLoading={isLoading}
-            />
-            <InfoTooltip
-              isOpen={isRegPopupOpen}
-              onClose={closeAllPopups}
-              isRegSuccess={isRegSuccess}
-            />
+          </Routes>
 
-            <Footer />
-          </LoginDataContext.Provider>
-        </UserDataContext.Provider>
+          <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+          <EditProfilePopup
+            isOpen={isEditProfilePopupOpen}
+            onClose={closeAllPopups}
+            buttonText={buttonText}
+            onUpdateUser={handleUpdateUser}
+            isLoading={isLoading}
+          />
+          <AddPlacePopup
+            isOpen={isAddPlacePopupOpen}
+            onClose={closeAllPopups}
+            buttonText={buttonText}
+            onAddPlace={handleAddPlaceSubmit}
+            isLoading={isLoading}
+          />
+          <EditAvatarPopup
+            isOpen={isEditAvatarPopupOpen}
+            onClose={closeAllPopups}
+            buttonText={buttonText}
+            onUpdateAvatar={handleUpdateAvatar}
+            isLoading={isLoading}
+          />
+          <InfoTooltip
+            isOpen={isRegPopupOpen}
+            onClose={closeAllPopups}
+            isRegSuccess={isRegSuccess}
+          />
+
+          <Footer />
+        </LoginDataContext.Provider>
       </CurrentUserContext.Provider>
     </div>
   );

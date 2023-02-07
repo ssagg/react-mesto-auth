@@ -1,11 +1,8 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-
+import React from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import * as Auth from "./Auth.js";
 
 function Registration({ handleRegistration }) {
-  const [userData, setUserData] = useState();
   const {
     register,
     formState: { errors, isValid },
@@ -14,31 +11,14 @@ function Registration({ handleRegistration }) {
   } = useForm({
     mode: "onChange",
   });
-  const navigate = useNavigate();
-  const [isRegSuccess, setIsRegSuccess] = useState(false);
-
-  function openInfoTooltip(isRegSuccess) {
-    handleRegistration(isRegSuccess);
-  }
 
   function onSubmit(password, email) {
-    Auth.signup(password, email)
-      .then((res) => {
-        if (res.data) {
-          openInfoTooltip(res);
-          navigate("/sign-in");
-        } else {
-          openInfoTooltip(res.error);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    handleRegistration(password, email);
+    reset();
   }
 
   return (
     <div className="login">
-      {/* <div className="popup__container"> */}
       <h2 className="login__title">Регистрация</h2>
       <form
         className={`login__form`}
@@ -55,6 +35,11 @@ function Registration({ handleRegistration }) {
           {...register("email", {
             required: "Заполните поле",
             minLength: { value: 2, message: "Минимум 2 символа максимум 40" },
+            pattern: {
+              value:
+                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
+              message: "Введите корректный email",
+            },
             maxLength: {
               value: 40,
               message: "Минимум 2 символа максимум 40",
@@ -66,7 +51,7 @@ function Registration({ handleRegistration }) {
         login__error_visible"
           id="profile-name-error"
         >
-          {errors?.name && <p>{errors?.name.message || "Ощибка"}</p>}
+          {errors?.email && <p>{errors?.email.message || "Ошибка"}</p>}
         </span>
         <input
           type="password"
@@ -75,19 +60,19 @@ function Registration({ handleRegistration }) {
           id="profile-about"
           {...register("password", {
             required: "Заполните поле",
-            minLength: { value: 2, message: "Минимум 2 символа максимум 40" },
+            minLength: { value: 2, message: "Минимум 2 символа максимум 8" },
             maxLength: {
-              value: 200,
-              message: "Минимум 2 символа максимум 40",
+              value: 8,
+              message: "Минимум 2 символа максимум 8",
             },
           })}
         />
         <span
           className="login__error
         login__error_visible"
-          id="profile-name-error"
+          id="password-name-error"
         >
-          {errors?.about && <p>{errors?.about.message || "Ошибка"}</p>}
+          {errors?.password && <p>{errors?.password.message || "Ошибка"}</p>}
         </span>
         <button
           disabled={!isValid}
@@ -98,15 +83,12 @@ function Registration({ handleRegistration }) {
           Зарегистрироваться
         </button>
         <div className="login__signup">
-          <p>
-            Уже зарегистрированы?
-            <Link to="/sign-in" className="login__signup">
-              Войти
-            </Link>
-          </p>
+          Уже зарегистрированы?&nbsp;
+          <Link to="/sign-in" className="login__signup">
+            Войти
+          </Link>
         </div>
       </form>
-      {/* </div> */}
     </div>
   );
 }

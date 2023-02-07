@@ -2,14 +2,16 @@ import React from "react";
 import failed from "../images/failed.svg";
 import success from "../images/success.svg";
 
-function InfoTooltip({ name, onClose, isOpen, title, isRegSuccess }) {
-  console.log(isRegSuccess);
+function InfoTooltip({ onClose, isOpen, isRegSuccess }) {
   return (
-    <div className={`popup  ${isOpen && "popup_opened"}`} id="popup-edit">
+    <div
+      className={`popup  ${isOpen && "popup_opened"}`}
+      id="popup-registration"
+    >
       <div className="popup__container">
         <button
           aria-label="Закрыть"
-          className={`popup__button-close popup-${name}__button-close`}
+          className={`popup__button-close`}
           type="button"
           onClick={onClose}
         />

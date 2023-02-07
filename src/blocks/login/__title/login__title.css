@@ -9,10 +9,10 @@
 
 @media screen and (max-width: 530px) {
   .login__title {
-    max-width: 238px;
+    max-width: 260px;
     font-weight: 900;
     font-size: 18px;
     line-height: 22px;
-    margin: 25px 22px 75px;
+    margin: 2px 22px 40px;
   }
 }

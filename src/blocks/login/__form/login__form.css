@@ -3,3 +3,9 @@
   flex-direction: column;
   width: 358px;
 }
+
+@media screen and (max-width: 530px) {
+  .login__form {
+    width: 260px;
+  }
+}

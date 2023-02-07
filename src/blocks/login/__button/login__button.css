@@ -9,6 +9,7 @@
   text-align: center;
   margin-top: 216px;
   border: 1px;
+  margin-bottom: 15px;
 }
 
 .login__button:hover {
@@ -17,13 +18,13 @@
 }
 
 @media screen and (max-width: 530px) {
-  .popup__button {
-    max-width: 238px;
+  .login__button {
+    max-width: 260px;
     height: 46px;
     font-weight: 400;
     font-size: 14px;
     line-height: 17px;
     text-align: center;
-    margin: 45px 22px 25px;
+    margin: 173px 0 20px;
   }
 }

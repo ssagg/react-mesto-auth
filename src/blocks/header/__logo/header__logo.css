@@ -3,7 +3,7 @@
   margin-bottom: 41px;
 }
 
-@media screen and (max-width: 325px) {
+@media screen and (max-width: 425px) {
   .header__logo {
     margin: 28px auto 31px 27px;
     max-width: 104px;
