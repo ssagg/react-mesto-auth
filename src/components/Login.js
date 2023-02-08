@@ -1,19 +1,19 @@
-import React from "react";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
 
 function Login({ handleLogin }) {
-  const {
-    register,
-    formState: { errors, isValid },
-    handleSubmit,
-    reset,
-  } = useForm({
-    mode: "onChange",
+  const [userCredentials, setuserCredentials] = useState({
+    email: "",
+    password: "",
   });
 
-  function onSubmit(password, email) {
-    handleLogin(password, email);
-    reset();
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setuserCredentials({ ...userCredentials, [name]: value });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    handleLogin(userCredentials);
   }
 
   return (
@@ -24,61 +24,38 @@ function Login({ handleLogin }) {
         name={`login`}
         id={`login`}
         noValidate
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit}
       >
         <input
           type="email"
+          name="email"
           className="login__input login__input_type_name"
           placeholder="Email"
           id="login-name"
-          {...register("email", {
-            required: "Введите email",
-            minLength: { value: 2, message: "Минимум 2 символа максимум 40" },
-            pattern: {
-              value:
-                /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
-              message: "Введите корректный email",
-            },
-            maxLength: {
-              value: 40,
-              message: "Минимум 2 символа максимум 40",
-            },
-          })}
+          value={userCredentials.email || ""}
+          onChange={handleChange}
         />
+
         <span
           className="login__error
-        login__error_visible"
+        "
           id="login-name-error"
-        >
-          {errors?.email && <p>{errors?.email.message || "Ошибка"}</p>}
-        </span>
+        ></span>
         <input
           type="password"
+          name="password"
           className="login__input login__input_type_about"
           placeholder="Пароль"
           id="password-about"
-          {...register("password", {
-            required: "Введите пароль",
-            minLength: { value: 2, message: "Минимум 2 символа максимум 8" },
-            maxLength: {
-              value: 8,
-              message: "Минимум 2 символа максимум 8",
-            },
-          })}
+          value={userCredentials.password || ""}
+          onChange={handleChange}
         />
         <span
           className="login__error
-        login__error_visible"
+        "
           id="password-name-error"
-        >
-          {errors?.password && <p>{errors?.password.message || "Ошибка"}</p>}
-        </span>
-        <button
-          disabled={!isValid}
-          className={`login__button ${!isValid && "login__button_disabled"}`}
-          type="submit"
-          id={`button-login`}
-        >
+        ></span>
+        <button className={"login__button"} type="submit" id={`button-login`}>
           Войти
         </button>
       </form>

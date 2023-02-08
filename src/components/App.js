@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
-import * as Auth from "./Auth.js";
+import * as Auth from "../utils/Auth.js";
 
 import Header from "./Header";
 import Footer from "./Footer";
@@ -43,19 +43,17 @@ function App() {
 
   const navigate = useNavigate();
 
-  function handleLogin(password, email) {
-    Auth.signin(password, email).then((res) => {
-      localStorage.setItem("token", res.token);
-      if (res.token) {
-        Auth.userValidation(res.token)
-          .then((res) => {
-            setLoggedIn(true);
-            loadUserEmail(res);
-            navigate("/", { replace: true });
-          })
-          .catch((err) => console.log(err));
-      }
-    });
+  function handleLogin(userCredentials) {
+    Auth.signin(userCredentials)
+      .then((res) => {
+        localStorage.setItem("token", res.token);
+        setLoggedIn(true);
+        navigate("/", { replace: true });
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        loadUserEmail(userCredentials);
+      });
   }
 
   function handleLogout() {
@@ -64,8 +62,8 @@ function App() {
   function loadUserEmail(email) {
     setUserEmail(email);
   }
-  function handleRegistration(password, email) {
-    Auth.signup(password, email)
+  function handleRegistration(userCredentials) {
+    Auth.signup(userCredentials)
       .then((res) => {
         setIsRegPopupOpen(!isRegPopupOpen);
         setIsRegSuccess(true);
@@ -105,29 +103,20 @@ function App() {
         document.removeEventListener("keydown", closeByEscape);
       };
     }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (loggedIn) {
+      Promise.all([api.getInitialCards(), api.getUserInfo()])
+        .then(([cards, userData]) => {
+          setCards([...cards]);
+          setCurrentUser(userData);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   }, [loggedIn]);
-
-  useEffect(() => {
-    api
-      .getInitialCards()
-      .then((cards) => {
-        setCards([...cards]);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
-  useEffect(() => {
-    api
-      .getUserInfo()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(!isEditAvatarPopupOpen);

@@ -7,14 +7,12 @@ function Registration({ handleRegistration }) {
     register,
     formState: { errors, isValid },
     handleSubmit,
-    reset,
   } = useForm({
     mode: "onChange",
   });
 
   function onSubmit(password, email) {
     handleRegistration(password, email);
-    reset();
   }
 
   return (
@@ -51,7 +49,7 @@ function Registration({ handleRegistration }) {
         login__error_visible"
           id="profile-name-error"
         >
-          {errors?.email && <p>{errors?.email.message || "Ошибка"}</p>}
+          {errors?.email && (errors?.email.message || "Ошибка")}
         </span>
         <input
           type="password"
@@ -72,7 +70,7 @@ function Registration({ handleRegistration }) {
         login__error_visible"
           id="password-name-error"
         >
-          {errors?.password && <p>{errors?.password.message || "Ошибка"}</p>}
+          {errors?.password && (errors?.password.message || "Ошибка")}
         </span>
         <button
           disabled={!isValid}
