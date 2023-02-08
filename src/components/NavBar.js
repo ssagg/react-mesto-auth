@@ -16,7 +16,9 @@ function NavBar({ handleLogout, userEmail }) {
     <nav className="header__menu">
       {loggedIn && (
         <>
-          <p className="header__email">{userEmail.data.email}</p>
+          <p className="header__email">
+            {userEmail.email || userEmail.data.email}
+          </p>
           <button onClick={signOut} className="header__button">
             Выход
           </button>
